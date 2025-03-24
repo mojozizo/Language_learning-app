@@ -1,0 +1,36 @@
+# Python-specific ignores
+*.pyc
+*__pycache__/
+**/.DS_Store
+
+# Virtual environment
+.venv/
+venv/
+env/
+*/venv/
+**/venv/
+
+# OS or Editor related
+.idea/
+.vscode/
+*.swp
+*.swo
+tmp/
+temp/
+
+# Log files
+*.log
+
+# Dependency directories
+node_modules/
+/react/german-pdf-learner/node_modules/
+
+# Compiled files
+dist/
+build/
+
+# Specific to wiktionary_api
+# /wiktionary_api/wiktionary-tool/__pycache__/
+# /wiktionary_api/wiktionary-tool/venv/
+
+# Add any other project-specific ignores below
