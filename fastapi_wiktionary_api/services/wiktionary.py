@@ -10,8 +10,14 @@ from fastapi import HTTPException
 from typing import List, Optional
 
 # Using absolute imports to avoid import issues
-from utils.html_parser import DefinitionHTMLParser, PronunciationHTMLParser
-from utils.validation import clean_word, validate_language
+from utils.html_parser import DefinitionHTMLParser
+
+def clean_word(word: str) -> str:
+    """
+    Clean a word for use in a URL.
+    Trims whitespace, converts to lowercase, and replaces spaces with underscores.
+    """
+    return word.strip().lower().replace(' ', '_')
 
 class WiktionaryService:
     """
@@ -27,6 +33,8 @@ class WiktionaryService:
         response = requests.get(
             f"https://en.wiktionary.org/api/rest_v1/page/definition/{clean_word(word)}"
         )
+
+        print(response.json())
         
         # Check if the request was successful
         if response.status_code != 200:
@@ -61,31 +69,33 @@ class WiktionaryService:
         """
         parser = DefinitionHTMLParser()
         definitions = []
-        
+
         # Check each language section in the response
         for lang_code, lang_data in response.items():
             # Skip the 'other' section which contains etymologies/related languages
             if lang_code == 'other':
                 continue
-                
+
             # Process each entry by part of speech
             for entry in lang_data:
                 pos = entry.get('partOfSpeech', '')
                 language = entry.get('language', '')
-                definitions.append(f"{language} - {pos}:\n")
-                
+                definitions.append(f"{language} - {pos}:")
+
                 # Process each definition
                 for idx, definition in enumerate(entry.get('definitions', []), 1):
                     # Parse and clean the HTML definition
                     parser.feed(definition.get('definition', ''))
-                    definitions.append(f"  {idx}. {parser.get_clean_text()}\n")
+                    definitions.append(f"  {idx}. {parser.get_clean_text()}")
                     parser.reset()
-                    
-                    # Process examples for this definition
-                    for example in definition.get('examples', []):
-                        parser.feed(example)
-                        definitions.append(f"    Example: {parser.get_clean_text()}\n")
-                        parser.reset()
-        
+
+                    # Process parsed examples for this definition
+                    for parsed_example in definition.get('parsedExamples', []):
+                        example_text = parsed_example.get('example', 'No example provided')
+                        translation_text = parsed_example.get('translation', 'No translation available')
+
+                        definitions.append(f"    Example: {example_text}")
+                        definitions.append(f"    Translation: {translation_text}")
+
         # Return all definitions as a single string
-        return ''.join(definitions) if definitions else "No definitions found"
+        return '\n'.join(definitions) if definitions else "No definitions found"

@@ -51,39 +51,3 @@ class DefinitionHTMLParser(HTMLParser):
         super().reset()
         self.sentence = []
         self.current_tag = []
-
-class PronunciationHTMLParser(HTMLParser):
-    """
-    HTML parser for extracting IPA pronunciations from HTML.
-    """
-    def __init__(self):
-        """Initialize the parser with empty IPA list."""
-        super().__init__()
-        self.reset()
-        self.ipas = []  # List to accumulate IPA pronunciations
-        self.in_ipa = False  # Flag to track if we're inside an IPA span
-    
-    def handle_starttag(self, tag, attrs):
-        """
-        Process opening HTML tags, looking for IPA spans.
-        """
-        # Check if this is an IPA span
-        if tag == 'span':
-            attrs_dict = dict(attrs)
-            if attrs_dict.get('class') == 'IPA':
-                self.in_ipa = True
-    
-    def handle_data(self, data):
-        """
-        Process text content within HTML.
-        """
-        # If we're inside an IPA span, add the text to our list
-        if self.in_ipa:
-            self.ipas.append(data)
-            self.in_ipa = False  # Reset flag after capturing IPA
-    
-    def reset(self):
-        """Reset the parser state."""
-        super().reset()
-        self.ipas = []
-        self.in_ipa = False

@@ -4,7 +4,7 @@ Dictionary API routes.
 from fastapi import APIRouter, Query, HTTPException
 # Using absolute imports to avoid import issues
 from services.wiktionary import WiktionaryService
-from models.schemas import DefinitionResponse, PronunciationResponse
+from models.schemas import DefinitionResponse
 
 # Create API router
 router = APIRouter()
@@ -14,7 +14,7 @@ async def get_definition(
     word: str,
 ):
     """
-    Get definition for a word in the specified language.
+    Get definition for a word.
     """
     try:
         return await WiktionaryService.get_definition(word)
