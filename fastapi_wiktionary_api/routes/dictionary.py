@@ -10,9 +10,7 @@ from models.schemas import DefinitionResponse
 router = APIRouter()
 
 @router.get("/define/{word}", response_model=DefinitionResponse)
-async def get_definition(
-    word: str,
-):
+async def get_definition(word: str):
     """
     Get definition for a word.
     """
@@ -21,3 +19,15 @@ async def get_definition(
     except Exception as e:
         # Return a 500 error with the exception message
         raise HTTPException(status_code=500, detail=str(e))
+    
+@router.get("/downloadpdf/{word}")
+async def download_pdf(word: str):
+    """
+    Download the PDF for a word from Wiktionary.
+    """
+    try:
+        return await WiktionaryService.get_pdf(word)
+    except Exception as e:
+        # Return a 500 error with the exception message
+        raise HTTPException(status_code=500, detail=str(e))
+        

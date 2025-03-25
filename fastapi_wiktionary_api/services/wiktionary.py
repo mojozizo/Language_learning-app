@@ -4,10 +4,8 @@ This module provides services for interacting with the Wiktionary API
 """
 import json
 import requests
-import pycountry
-from html.parser import HTMLParser
 from fastapi import HTTPException
-from typing import List, Optional
+from fastapi.responses import StreamingResponse
 
 # Using absolute imports to avoid import issues
 from utils.html_parser import DefinitionHTMLParser
@@ -99,3 +97,20 @@ class WiktionaryService:
 
         # Return all definitions as a single string
         return '\n'.join(definitions) if definitions else "No definitions found"
+    
+    @staticmethod
+    async def get_pdf(word: str) -> StreamingResponse:
+        """
+        Download the PDF for a word from Wiktionary.
+        """
+        pdf_url = f"https://en.wiktionary.org/api/rest_v1/page/pdf/{clean_word(word)}"
+        
+        # Make request to download the PDF
+        response = requests.get(pdf_url, stream=True)
+        
+        # Check if the request was successful
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail="PDF not found")
+        
+        # Return the PDF as a streaming response
+        return StreamingResponse(response.iter_content(), media_type='application/pdf')
